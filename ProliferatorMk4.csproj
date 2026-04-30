@@ -1,0 +1,134 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Local.props" Condition="Exists('Local.props')" />
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>ProliferatorMk4</RootNamespace>
+    <AssemblyName>ProliferatorMk4</AssemblyName>
+    <LangVersion>7.3</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Nullable>disable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ModVersion>0.1.0</ModVersion>
+    <DepsDir>$(ProjectDir)deps\</DepsDir>
+    <ProfileRoot Condition=" '$(ProfileRoot)' == '' ">$(AppData)\r2modmanPlus-local\DysonSphereProgram\profiles\proliferatormk4-test</ProfileRoot>
+    <DeployPluginDir>$(ProfileRoot)\BepInEx\plugins\ProliferatorMk4</DeployPluginDir>
+    <PackageStagingRoot>$(ProjectDir)obj\package\</PackageStagingRoot>
+    <PackagePluginDir>$(PackageStagingRoot)BepInEx\plugins\ProliferatorMk4</PackagePluginDir>
+    <PackageZip>$(ProjectDir)dist\ProliferatorMk4-$(ModVersion).zip</PackageZip>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DysonSphereProgram.Modding.CommonAPI" Version="1.6.5" />
+    <PackageReference Include="DysonSphereProgram.Modding.LDBTool" Version="3.0.0" />
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ProjectDir)deps\Assembly-CSharp-publicized.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(DSPManagedPath)UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(DSPManagedPath)UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(DSPManagedPath)UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>$(DSPManagedPath)UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(ProjectDir)deps\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>$(ProjectDir)deps\BepInEx.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="assets\sprite\*.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SetupDependency Include="$(AssemblyCSharpPublicizedPath)">
+      <TargetName>Assembly-CSharp-publicized.dll</TargetName>
+    </SetupDependency>
+    <SetupDependency Include="$(HarmonyDllPath)">
+      <TargetName>0Harmony.dll</TargetName>
+    </SetupDependency>
+    <SetupDependency Include="$(BepInExDllPath)">
+      <TargetName>BepInEx.dll</TargetName>
+    </SetupDependency>
+  </ItemGroup>
+
+  <Target Name="ValidateLocalProps" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(ProjectDir)Local.props')" Text="Missing Local.props. Copy Local.props.example and fill in your local paths first." />
+    <Error Condition="'$(DSPManagedPath)' == ''" Text="DSPManagedPath is missing in Local.props." />
+    <Error Condition="'$(AssemblyCSharpPublicizedPath)' == ''" Text="AssemblyCSharpPublicizedPath is missing in Local.props." />
+    <Error Condition="'$(HarmonyDllPath)' == ''" Text="HarmonyDllPath is missing in Local.props." />
+    <Error Condition="'$(BepInExDllPath)' == ''" Text="BepInExDllPath is missing in Local.props." />
+  </Target>
+
+  <Target Name="ValidateSetupInputs">
+    <Error Condition="!Exists('%(SetupDependency.Identity)')" Text="Missing setup dependency: %(SetupDependency.Identity)" />
+    <Error Condition="!Exists('$(DSPManagedPath)UnityEngine.dll')" Text="Missing UnityEngine.dll under DSPManagedPath: $(DSPManagedPath)" />
+    <Error Condition="!Exists('$(DSPManagedPath)UnityEngine.CoreModule.dll')" Text="Missing UnityEngine.CoreModule.dll under DSPManagedPath: $(DSPManagedPath)" />
+  </Target>
+
+  <Target Name="Setup" DependsOnTargets="ValidateLocalProps;ValidateSetupInputs">
+    <MakeDir Directories="$(DepsDir)" />
+    <Copy SourceFiles="@(SetupDependency)"
+          DestinationFiles="@(SetupDependency->'$(DepsDir)%(TargetName)')"
+          SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="Setup completed. Dependencies copied to $(DepsDir)" />
+  </Target>
+
+  <Target Name="EnsureSetup" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(DepsDir)Assembly-CSharp-publicized.dll')" Text="Missing deps\Assembly-CSharp-publicized.dll. Run the Setup target once before building." />
+    <Error Condition="!Exists('$(DepsDir)0Harmony.dll')" Text="Missing deps\0Harmony.dll. Run the Setup target once before building." />
+    <Error Condition="!Exists('$(DepsDir)BepInEx.dll')" Text="Missing deps\BepInEx.dll. Run the Setup target once before building." />
+  </Target>
+
+  <Target Name="DeployToProfile" DependsOnTargets="Build">
+    <MakeDir Directories="$(DeployPluginDir)" />
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFiles="$(DeployPluginDir)\$(TargetFileName)"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).pdb"
+          DestinationFiles="$(DeployPluginDir)\$(TargetName).pdb"
+          Condition="Exists('$(TargetDir)$(TargetName).pdb')"
+          SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="Deployed to $(DeployPluginDir)" />
+  </Target>
+
+  <Target Name="Package" DependsOnTargets="Build">
+    <Error Condition="!Exists('$(ProjectDir)icon.png')" Text="Missing icon.png. Thunderstore/r2modman packages require a package icon at the zip root." />
+    <RemoveDir Directories="$(PackageStagingRoot)" />
+    <MakeDir Directories="$(PackagePluginDir);$(ProjectDir)dist" />
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFiles="$(PackagePluginDir)\$(TargetFileName)"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectDir)manifest.json;$(ProjectDir)README.md;$(ProjectDir)icon.png"
+          DestinationFolder="$(PackageStagingRoot)"
+          SkipUnchangedFiles="true" />
+    <Exec Command="powershell -NoProfile -Command &quot;Compress-Archive -Path '$(PackageStagingRoot)*' -DestinationPath '$(PackageZip)' -Force&quot;" />
+    <Message Importance="high" Text="Package created at $(PackageZip)" />
+  </Target>
+</Project>

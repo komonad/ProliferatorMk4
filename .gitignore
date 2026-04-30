@@ -1,0 +1,10 @@
+bin/
+obj/
+deps/
+BepInEx/
+dist/
+.dotnet-cli/
+Local.props
+.vs/
+*.user
+*.suo
