@@ -11,7 +11,7 @@
     <Nullable>disable</Nullable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <ModVersion>0.1.0</ModVersion>
+    <ModVersion>0.1.1</ModVersion>
     <DepsDir>$(ProjectDir)deps\</DepsDir>
     <ProfileRoot Condition=" '$(ProfileRoot)' == '' ">$(AppData)\r2modmanPlus-local\DysonSphereProgram\profiles\proliferatormk4-test</ProfileRoot>
     <DeployPluginDir>$(ProfileRoot)\BepInEx\plugins\ProliferatorMk4</DeployPluginDir>

@@ -20,7 +20,7 @@ namespace ProliferatorMk4
     {
         public const string ModGuid = "com.komonad.dsp.proliferatormk4";
         public const string ModName = "Proliferator Mk.IV";
-        public const string Version = "0.1.0";
+        public const string Version = "0.1.1";
 
         private const int DefaultItemProliferatorMk4 = 9441;
         private const int DefaultRecipeProliferatorMk4 = 9441;
@@ -425,10 +425,10 @@ namespace ProliferatorMk4
 
             IconToolNew.IconDesc iconDesc = new IconToolNew.IconDesc
             {
-                faceColor = new Color(0.30f, 0.08f, 0.46f, 1f),
-                sideColor = new Color(0.09f, 0.035f, 0.16f, 1f),
-                faceEmission = new Color(0.07f, 0.01f, 0.14f, 1f),
-                sideEmission = new Color(0.015f, 0f, 0.035f, 1f),
+                faceColor = new Color(0.56f, 0.17f, 0.70f, 1f),
+                sideColor = new Color(0.23f, 0.055f, 0.34f, 1f),
+                faceEmission = new Color(0.18f, 0.035f, 0.25f, 1f),
+                sideEmission = new Color(0.055f, 0.005f, 0.095f, 1f),
                 iconEmission = Color.clear,
                 metallic = 0.92f,
                 smoothness = 0.62f,
@@ -851,8 +851,8 @@ namespace ProliferatorMk4
         private static void RewriteMk4SpraycoaterVisualState(CargoTraffic traffic, AnimData[] animPool, SpraycoaterComponent spraycoater)
         {
             bool isMk4 = IsMk4Spraycoater(traffic, spraycoater);
-            bool isSpraying = IsSpraycoaterSpraying(animPool, spraycoater.entityId);
-            QueueSpraycoaterVisualModelUpdate(traffic?.factory, spraycoater.entityId, ResolveSpraycoaterVisualModelIndex(isMk4, isSpraying));
+            bool visualActive = IsSpraycoaterVisualActive(animPool, spraycoater.entityId);
+            QueueSpraycoaterVisualModelUpdate(traffic?.factory, spraycoater.entityId, ResolveSpraycoaterVisualModelIndex(isMk4, visualActive));
 
             if (!isMk4 ||
                 animPool == null ||
@@ -875,12 +875,17 @@ namespace ProliferatorMk4
                 (uint)(Mk4SpraycoaterVisualAbility * 10);
         }
 
-        private static bool IsSpraycoaterSpraying(AnimData[] animPool, int entityId)
+        private static bool IsSpraycoaterVisualActive(AnimData[] animPool, int entityId)
         {
-            return animPool != null &&
-                   entityId > 0 &&
-                   entityId < animPool.Length &&
-                   animPool[entityId].state % 1000u >= 100u;
+            if (animPool == null ||
+                entityId <= 0 ||
+                entityId >= animPool.Length)
+            {
+                return false;
+            }
+
+            uint state = animPool[entityId].state;
+            return state / 1000u > 0u || state % 1000u >= 100u;
         }
 
         private static int ResolveSpraycoaterVisualModelIndex(bool isMk4, bool isSpraying)
