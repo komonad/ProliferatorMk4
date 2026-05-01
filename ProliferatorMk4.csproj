@@ -125,7 +125,7 @@
     <Copy SourceFiles="$(TargetPath)"
           DestinationFiles="$(PackagePluginDir)\$(TargetFileName)"
           SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(ProjectDir)manifest.json;$(ProjectDir)README.md;$(ProjectDir)icon.png"
+    <Copy SourceFiles="$(ProjectDir)manifest.json;$(ProjectDir)README.md;$(ProjectDir)CHANGELOG.md;$(ProjectDir)icon.png"
           DestinationFolder="$(PackageStagingRoot)"
           SkipUnchangedFiles="true" />
     <Exec Command="powershell -NoProfile -Command &quot;Compress-Archive -Path '$(PackageStagingRoot)*' -DestinationPath '$(PackageZip)' -Force&quot;" />
