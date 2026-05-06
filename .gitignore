@@ -4,6 +4,7 @@ deps/
 BepInEx/
 dist/
 .dotnet-cli/
+.claude/
 Local.props
 .vs/
 *.user

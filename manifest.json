@@ -1,6 +1,6 @@
 {
   "name": "ProliferatorMk4",
-  "version_number": "0.1.1",
+  "version_number": "0.1.2",
   "website_url": "https://github.com/komonad/ProliferatorMk4",
   "description": "Adds Proliferator Mk.IV, a high-tier proliferator for Dyson Sphere Program.",
   "dependencies": [
